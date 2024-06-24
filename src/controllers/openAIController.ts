@@ -34,6 +34,7 @@ export async function askOpenAI(req: Request, res: Response) {
     const reportId = req.body.reportId;
     const userId = req.body.userID;
     const environment = req.body.environment;
+    console.log("Entrou na rota com o novo domínio");
 
     if (!answer) {
         return res.status(400).send({ error: "Pergunta não fornecida." });
