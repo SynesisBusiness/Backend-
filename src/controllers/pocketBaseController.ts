@@ -9,7 +9,7 @@ interface ChatRequest {
 export async function sendChatRequest(data: ChatRequest): Promise<void> {
     const url = "https://vconsultoria.pockethost.io/api/chat";
     try {
-      const response = await axios.post(url, data);
+      await axios.post(url, data);
     } catch (error: any) {
       console.error("Error making request:", error);
     }
@@ -18,7 +18,7 @@ export async function sendChatRequest(data: ChatRequest): Promise<void> {
   export async function sendChatTestRequest(data: ChatRequest): Promise<void> {
     const url = "https://test-lab-vconsultoria.pockethost.io/api/openai_chat";
     try {
-      const response = await axios.post(url, data);
+      await axios.post(url, data);
     } catch (error: any) {
       console.error("Error making request:", error);
     }
@@ -30,14 +30,14 @@ export async function sendChatRequest(data: ChatRequest): Promise<void> {
     const url =
       "https://vconsultoria.pockethost.io/api/emails/planejamentoestrategicogerado";
     const data = {
-      userId: userId, // Assumindo que você quer enviar o userId como parte do corpo
-      //token: "nrsu12gatexznv9" // Ajuste o campo conforme necessário para seu endpoint
+      userId: userId, 
+      //token: "nrsu12gatexznv9" 
     };
 
     try {
       const response = await axios.post(url, data);
       console.log("Request successful:", response.data);
-      console.log("Email enviado para admin");
+      console.log("Email sent to admin");
     } catch (error: any) {
       console.error("Error making request:", error.message || error);
     }
@@ -49,7 +49,7 @@ export async function sendChatRequest(data: ChatRequest): Promise<void> {
     try {
       const response = await axios.post(url, userId);
       console.log("Request successful:", response.data);
-      console.log("Email enviado para admin");
+      console.log("Email sent to admin");
     } catch (error: any) {
       console.error("Error making request:", error);
     }
