@@ -18,7 +18,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json());
 app.use(express_1.default.json()); // Middleware to parse JSON
 app.use('/api', openAIRoutes_1.default); // Adjust the base URL as necessary
-const port = process.env.PORT || 3000;
+const port = 3000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
