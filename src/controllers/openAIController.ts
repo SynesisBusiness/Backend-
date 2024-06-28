@@ -8,7 +8,6 @@ import { diagnosisready } from "./pocketBaseController";
 import { growthPlanReady } from "./pocketBaseController";
 const PocketBase = require("pocketbase/cjs");
 import axios from "axios";
-import FormData from "form-data";
 import fs from "fs";
 import path from "path";
 import xlsx from "xlsx";
@@ -22,7 +21,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Função para converter XLS em CSV
+// Function XLS to CSV
 function convertXlsToCsv(xlsFilePath: string, csvFilePath: string): void {
   const workbook = xlsx.readFile(xlsFilePath);
   const sheetName = workbook.SheetNames[0];
@@ -31,20 +30,17 @@ function convertXlsToCsv(xlsFilePath: string, csvFilePath: string): void {
   fs.writeFileSync(csvFilePath, csvData);
 }
 
-// Função para converter CSV em JSON
+// Function CSV to JSON
 async function convertCsvToJson(csvFilePath: string): Promise<any[]> {
   const jsonArray = await csvtojson().fromFile(csvFilePath);
   return jsonArray;
 }
 
-// Função principal que combina as conversões
+// Unif the file conversions
 async function convertXlsToJson(xlsFilePath: string): Promise<any[]> {
   const csvFilePath = path.join(__dirname, "temp.csv");
-  // Converter XLS para CSV
   convertXlsToCsv(xlsFilePath, csvFilePath);
-  // Converter CSV para JSON
   const jsonArray = await convertCsvToJson(csvFilePath);
-  // Opcional: Apagar o arquivo CSV temporário
   fs.unlinkSync(csvFilePath);
   return jsonArray;
 }
@@ -107,7 +103,7 @@ export async function askOpenAI(req: Request, res: Response) {
 
 export async function growthPlan(req: Request, res: Response): Promise<void> {
   const prompt = req.body.prompt;
-  const growth_plan_id = req.body.growth_plan_id;
+  const growth_plan_id = req.body.growthPlanId;
   const userId = req.body.userId;
   console.log("growthPlan route");
 
@@ -153,6 +149,7 @@ export async function growthPlan(req: Request, res: Response): Promise<void> {
       userId: userId,
       chatResponse: chatResponse,
     };
+    console.log("chatData: ", chatData);
     growthPlanReady(chatData);
 
     res.status(200).send({ content: chatResponse });
