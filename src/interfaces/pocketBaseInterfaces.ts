@@ -1,5 +1,5 @@
 export interface ChatRequest {
-    reportId: string;
-    userID: string;
-    chatResponse: string;
-  }
+  diagnosisId: string;
+  userId: string;
+  chatResponse: string;
+}

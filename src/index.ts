@@ -14,9 +14,9 @@ app.use(cors({
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(express.json()); // Middleware to parse JSON
+app.use(express.json());
 
-app.use('/api', openAIRoutes); // Adjust the base URL as necessary
+app.use('/api', openAIRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
