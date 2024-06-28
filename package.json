@@ -21,10 +21,13 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
     "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "form-data": "^4.0.0",
     "openai": "^4.52.0",
-    "pocketbase": "^0.21.3"
+    "pocketbase": "^0.21.3",
+    "xlsx": "^0.18.5"
   }
 }

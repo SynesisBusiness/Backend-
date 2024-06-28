@@ -11,6 +11,8 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
+import xlsx from "xlsx";
+import csvtojson from "csvtojson";
 
 const pb = new PocketBase("https://synesisbusiness.pockethost.io");
 
@@ -20,26 +22,55 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Função para converter XLS em CSV
+function convertXlsToCsv(xlsFilePath: string, csvFilePath: string): void {
+  const workbook = xlsx.readFile(xlsFilePath);
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  const csvData = xlsx.utils.sheet_to_csv(worksheet);
+  fs.writeFileSync(csvFilePath, csvData);
+}
+
+// Função para converter CSV em JSON
+async function convertCsvToJson(csvFilePath: string): Promise<any[]> {
+  const jsonArray = await csvtojson().fromFile(csvFilePath);
+  return jsonArray;
+}
+
+// Função principal que combina as conversões
+async function convertXlsToJson(xlsFilePath: string): Promise<any[]> {
+  const csvFilePath = path.join(__dirname, "temp.csv");
+  // Converter XLS para CSV
+  convertXlsToCsv(xlsFilePath, csvFilePath);
+  // Converter CSV para JSON
+  const jsonArray = await convertCsvToJson(csvFilePath);
+  // Opcional: Apagar o arquivo CSV temporário
+  fs.unlinkSync(csvFilePath);
+  return jsonArray;
+}
+
 export async function fetchChatGPTResponse(
   instrucao: string,
   excelFilePath: string
 ): Promise<string> {
   try {
-    const form = new FormData();
-    form.append("prompt", instrucao);
-    form.append("file", fs.createReadStream(excelFilePath));
+    // Convertendo o arquivo XLS para JSON
+    const jsonArray = await convertXlsToJson(excelFilePath);
+    const jsonContent = JSON.stringify(jsonArray);
+    const prompt = `${instrucao}\n\n${jsonContent}`;
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
-      form,
+      {
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+      },
       {
         headers: {
-          ...form.getHeaders(),
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
       }
     );
-
     const chatMessage: ChatCompletion = response.data.choices[0].message;
     return chatMessage.content;
   } catch (error) {
@@ -74,14 +105,15 @@ export async function askOpenAI(req: Request, res: Response) {
   }
 }
 
-export async function growthPlan(req: Request, res: Response) {
+export async function growthPlan(req: Request, res: Response): Promise<void> {
   const prompt = req.body.prompt;
   const growth_plan_id = req.body.growth_plan_id;
   const userId = req.body.userId;
   console.log("growthPlan route");
 
   if (!prompt) {
-    return res.status(400).send({ error: "Prompt not received" });
+    res.status(400).send({ error: "Prompt not received" });
+    return;
   }
 
   try {
@@ -92,9 +124,8 @@ export async function growthPlan(req: Request, res: Response) {
 
     console.log("result: ", result);
     if (result.items.length === 0) {
-      return res
-        .status(404)
-        .send({ error: "No record found for the given userId" });
+      res.status(404).send({ error: "No record found for the given userId" });
+      return;
     }
 
     const record = result.items[0];
@@ -106,7 +137,6 @@ export async function growthPlan(req: Request, res: Response) {
       download: "1",
     });
     console.log("fileUrl: ", fileUrl);
-    console.log("parou aqui :(");
 
     // Downloading the file
     const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
@@ -114,6 +144,9 @@ export async function growthPlan(req: Request, res: Response) {
     fs.writeFileSync(filePath, response.data);
 
     const chatResponse = await fetchChatGPTResponse(prompt, filePath);
+
+    // Delete the file after use
+    fs.unlinkSync(filePath);
 
     const chatData: ChatRequest = {
       diagnosisId: growth_plan_id,
@@ -126,5 +159,5 @@ export async function growthPlan(req: Request, res: Response) {
   } catch (error) {
     console.error("Error processing your request:", error);
     res.status(500).send({ error: "Error processing your request." });
-  } 
+  }
 }
