@@ -1,17 +1,14 @@
 import { config } from "dotenv";
 import {
   ChatCompletion,
-  ChatResponse,
   GPTParams,
 } from "interfaces/openAIInterfaces";
+import { ChatResponse } from "interfaces/openAIInterfaces";
 import { Request, Response } from "express";
 import OpenAI from "openai";
 import { ChatRequest } from "interfaces/pocketBaseInterfaces";
 import {
-  sendChatRequest,
-  sendChatTestRequest,
-  sendPlanningEmailRequestTest,
-  sendStrategicPlanningEmailRequestProd,
+  diagnosisready,
 } from "./pocketBaseController";
 
 config();
@@ -39,26 +36,24 @@ export async function fetchChatGPTResponse(instrucao: string): Promise<string> {
 }
 
 export async function askOpenAI(req: Request, res: Response) {
-  const answer = req.body.answer;
-  const reportId = req.body.reportId;
-  const userId = req.body.userID;
+  const prompt = req.body.prompt;
+  const diagnosisId = req.body.diagnosisId;
+  const userId = req.body.userId;
   console.log("askOpenAI route");
 
-  if (!answer) {
+  if (!prompt) {
     return res.status(400).send({ error: "Prompt not received" });
   }
 
   try {
-    const chatResponse = await fetchChatGPTResponse(answer);
+    const chatResponse = await fetchChatGPTResponse(prompt);
 
     const chatData: ChatRequest = {
-      reportId: reportId,
-      userID: userId,
+      diagnosisId: diagnosisId,
+      userId: userId,
       chatResponse: chatResponse,
     };
-
-    sendChatRequest(chatData);
-    sendStrategicPlanningEmailRequestProd(userId);
+    diagnosisready(chatData);
 
     res.status(200).send({ content: chatResponse });
   } catch (error) {

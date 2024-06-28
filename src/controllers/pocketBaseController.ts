@@ -1,22 +1,8 @@
 import axios from "axios";
+import { ChatRequest } from "interfaces/pocketBaseInterfaces";
 
-interface ChatRequest {
-    reportId: string;
-    userID: string;
-    chatResponse: string;
-  }
-  
-export async function sendChatRequest(data: ChatRequest): Promise<void> {
-    const url = "https://vconsultoria.pockethost.io/api/chat";
-    try {
-      await axios.post(url, data);
-    } catch (error: any) {
-      console.error("Error making request:", error);
-    }
-  }
-
-  export async function sendChatTestRequest(data: ChatRequest): Promise<void> {
-    const url = "https://test-lab-vconsultoria.pockethost.io/api/openai_chat";
+export async function diagnosisready(data: ChatRequest): Promise<void> {
+    const url = "https://synesisbusiness.pockethost.io/api/emails/diagnosticready";
     try {
       await axios.post(url, data);
     } catch (error: any) {
