@@ -123,6 +123,7 @@ export async function growthPlan(req: Request, res: Response): Promise<void> {
     const result = await pb.collection("analytics_excel").getList(1, 1, {
       filter: `user="${userId}"`,
       sort: "-created",
+      requestKey: null,
     });
 
     console.log("result: ", result);
