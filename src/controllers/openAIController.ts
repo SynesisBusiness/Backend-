@@ -10,7 +10,7 @@ const PocketBase = require("pocketbase/cjs");
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import xlsx from "xlsx";
+import ExcelJS from "exceljs";
 import csvtojson from "csvtojson";
 
 const pb = new PocketBase("https://synesisbusiness.pockethost.io");
@@ -21,13 +21,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Function XLS to CSV
-function convertXlsToCsv(xlsFilePath: string, csvFilePath: string): void {
-  const workbook = xlsx.readFile(xlsFilePath);
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
-  const csvData = xlsx.utils.sheet_to_csv(worksheet);
-  fs.writeFileSync(csvFilePath, csvData);
+// Function XLS to CSV using exceljs
+async function convertXlsToCsv(
+  xlsFilePath: string,
+  csvFilePath: string
+): Promise<void> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(xlsFilePath);
+  const worksheet = workbook.getWorksheet(1);
+  const csvStream = fs.createWriteStream(csvFilePath);
+  await workbook.csv.write(csvStream);
 }
 
 // Function CSV to JSON
@@ -36,10 +39,10 @@ async function convertCsvToJson(csvFilePath: string): Promise<any[]> {
   return jsonArray;
 }
 
-// Unif the file conversions
+// Unify the file conversions
 async function convertXlsToJson(xlsFilePath: string): Promise<any[]> {
   const csvFilePath = path.join(__dirname, "temp.csv");
-  convertXlsToCsv(xlsFilePath, csvFilePath);
+  await convertXlsToCsv(xlsFilePath, csvFilePath);
   const jsonArray = await convertCsvToJson(csvFilePath);
   fs.unlinkSync(csvFilePath);
   return jsonArray;
