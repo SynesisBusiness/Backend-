@@ -50,13 +50,17 @@ async function convertXlsToJson(xlsFilePath: string): Promise<any[]> {
 
 export async function fetchChatGPTResponse(
   instrucao: string,
-  excelFilePath: string
+  excelFilePath?: string
 ): Promise<string> {
   try {
-    // Convertendo o arquivo XLS para JSON
-    const jsonArray = await convertXlsToJson(excelFilePath);
-    const jsonContent = JSON.stringify(jsonArray);
-    const prompt = `${instrucao}\n\n${jsonContent}`;
+    let prompt = instrucao;
+
+    if (excelFilePath) {
+      // Convertendo o arquivo XLS para JSON
+      const jsonArray = await convertXlsToJson(excelFilePath);
+      const jsonContent = JSON.stringify(jsonArray);
+      prompt = `${instrucao}\n\n${jsonContent}`;
+    }
 
     console.log("Prompt enviado(instrução + json): ", prompt);
 
@@ -93,7 +97,7 @@ export async function askOpenAI(req: Request, res: Response) {
   }
 
   try {
-    const chatResponse = await fetchChatGPTResponse(prompt, "");
+    const chatResponse = await fetchChatGPTResponse(prompt);
 
     const chatData: ChatRequest = {
       diagnosisId: diagnosisId,

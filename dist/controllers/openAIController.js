@@ -42,10 +42,13 @@ async function convertXlsToJson(xlsFilePath) {
 }
 async function fetchChatGPTResponse(instrucao, excelFilePath) {
     try {
-        // Convertendo o arquivo XLS para JSON
-        const jsonArray = await convertXlsToJson(excelFilePath);
-        const jsonContent = JSON.stringify(jsonArray);
-        const prompt = `${instrucao}\n\n${jsonContent}`;
+        let prompt = instrucao;
+        if (excelFilePath) {
+            // Convertendo o arquivo XLS para JSON
+            const jsonArray = await convertXlsToJson(excelFilePath);
+            const jsonContent = JSON.stringify(jsonArray);
+            prompt = `${instrucao}\n\n${jsonContent}`;
+        }
         console.log("Prompt enviado(instrução + json): ", prompt);
         const response = await axios_1.default.post("https://api.openai.com/v1/chat/completions", {
             model: "gpt-3.5-turbo",
@@ -75,7 +78,7 @@ async function askOpenAI(req, res) {
         return res.status(400).send({ error: "Prompt not received" });
     }
     try {
-        const chatResponse = await fetchChatGPTResponse(prompt, "");
+        const chatResponse = await fetchChatGPTResponse(prompt);
         const chatData = {
             diagnosisId: diagnosisId,
             userId: userId,
