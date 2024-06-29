@@ -141,9 +141,15 @@ export async function growthPlan(req: Request, res: Response): Promise<void> {
     });
     console.log("fileUrl: ", fileUrl);
 
+    // Ensure the downloads directory exists
+    const downloadsDir = path.join(__dirname, "../downloads");
+    if (!fs.existsSync(downloadsDir)) {
+      fs.mkdirSync(downloadsDir, { recursive: true });
+    }
+
     // Downloading the file
     const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
-    const filePath = path.join(__dirname, "../downloads", firstFilename);
+    const filePath = path.join(downloadsDir, firstFilename);
     fs.writeFileSync(filePath, response.data);
 
     const chatResponse = await fetchChatGPTResponse(prompt, filePath);

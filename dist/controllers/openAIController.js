@@ -117,9 +117,14 @@ async function growthPlan(req, res) {
             download: "1",
         });
         console.log("fileUrl: ", fileUrl);
+        // Ensure the downloads directory exists
+        const downloadsDir = path_1.default.join(__dirname, "../downloads");
+        if (!fs_1.default.existsSync(downloadsDir)) {
+            fs_1.default.mkdirSync(downloadsDir, { recursive: true });
+        }
         // Downloading the file
         const response = await axios_1.default.get(fileUrl, { responseType: "arraybuffer" });
-        const filePath = path_1.default.join(__dirname, "../downloads", firstFilename);
+        const filePath = path_1.default.join(downloadsDir, firstFilename);
         fs_1.default.writeFileSync(filePath, response.data);
         const chatResponse = await fetchChatGPTResponse(prompt, filePath);
         console.log("chatResponse: ", chatResponse);
