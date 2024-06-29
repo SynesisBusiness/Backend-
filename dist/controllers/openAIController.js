@@ -116,7 +116,7 @@ async function growthPlan(req, res) {
         console.log("fileUrl: ", fileUrl);
         // Downloading the file
         const response = await axios_1.default.get(fileUrl, { responseType: "arraybuffer" });
-        const filePath = path_1.default.join(__dirname, "downloads", firstFilename);
+        const filePath = path_1.default.join(__dirname, "../downloads", firstFilename);
         fs_1.default.writeFileSync(filePath, response.data);
         const chatResponse = await fetchChatGPTResponse(prompt, filePath);
         // Delete the file after use

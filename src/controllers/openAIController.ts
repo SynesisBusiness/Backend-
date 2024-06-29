@@ -139,7 +139,7 @@ export async function growthPlan(req: Request, res: Response): Promise<void> {
 
     // Downloading the file
     const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
-    const filePath = path.join(__dirname, "downloads", firstFilename);
+    const filePath = path.join(__dirname, "../downloads", firstFilename);
     fs.writeFileSync(filePath, response.data);
 
     const chatResponse = await fetchChatGPTResponse(prompt, filePath);
