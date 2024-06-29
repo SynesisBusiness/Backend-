@@ -58,6 +58,8 @@ export async function fetchChatGPTResponse(
     const jsonContent = JSON.stringify(jsonArray);
     const prompt = `${instrucao}\n\n${jsonContent}`;
 
+    console.log("Prompt enviado(instrução + json): ", prompt);
+
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -71,6 +73,8 @@ export async function fetchChatGPTResponse(
       }
     );
     const chatMessage: ChatCompletion = response.data.choices[0].message;
+    console.log("chatMessage: ", chatMessage);
+    console.log("resposta (chatMessage.content): ", chatMessage.content);
     return chatMessage.content;
   } catch (error) {
     console.error("Error when fetching response from ChatGPT:", error);
@@ -143,7 +147,7 @@ export async function growthPlan(req: Request, res: Response): Promise<void> {
     fs.writeFileSync(filePath, response.data);
 
     const chatResponse = await fetchChatGPTResponse(prompt, filePath);
-
+    console.log("chatResponse: ", chatResponse);
     // Delete the file after use
     fs.unlinkSync(filePath);
 
