@@ -46,6 +46,7 @@ async function fetchChatGPTResponse(instrucao, excelFilePath) {
         const jsonArray = await convertXlsToJson(excelFilePath);
         const jsonContent = JSON.stringify(jsonArray);
         const prompt = `${instrucao}\n\n${jsonContent}`;
+        console.log("Prompt enviado(instrução + json): ", prompt);
         const response = await axios_1.default.post("https://api.openai.com/v1/chat/completions", {
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
@@ -55,6 +56,8 @@ async function fetchChatGPTResponse(instrucao, excelFilePath) {
             },
         });
         const chatMessage = response.data.choices[0].message;
+        console.log("chatMessage: ", chatMessage);
+        console.log("resposta (chatMessage.content): ", chatMessage.content);
         return chatMessage.content;
     }
     catch (error) {
@@ -119,6 +122,7 @@ async function growthPlan(req, res) {
         const filePath = path_1.default.join(__dirname, "../downloads", firstFilename);
         fs_1.default.writeFileSync(filePath, response.data);
         const chatResponse = await fetchChatGPTResponse(prompt, filePath);
+        console.log("chatResponse: ", chatResponse);
         // Delete the file after use
         fs_1.default.unlinkSync(filePath);
         const chatData = {
