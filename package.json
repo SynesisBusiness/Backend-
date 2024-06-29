@@ -27,7 +27,6 @@
     "express": "^4.19.2",
     "form-data": "^4.0.0",
     "openai": "^4.52.0",
-    "pocketbase": "^0.21.3",
-    "xlsx": "^0.18.5"
+    "pocketbase": "^0.21.3"
   }
 }
